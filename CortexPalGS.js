@@ -12,7 +12,7 @@ const LOW_NUMBER_ERROR = '{0} must be greater than zero.';
 
 const BEST_OPTION = 'best';
 
-function parseToDice(words) {
+function parseToDiceFromString(words) {
     /* Examine the words of an input string, and keep those that are cortex dice notations. */
 
     const dice = [];
@@ -26,6 +26,22 @@ function parseToDice(words) {
         }
     }
     return dice;
+}
+    //array of int[] to dice
+    function parseToDiceFromNumArray(numArray) {
+        return numArray.flat().filter(die => parseInt(die) && DIE_SIZES.includes(die)).map(die => new Die(null, "D" + die, die, 1, []));
+    }
+
+//examine input, if string parse to dice, if array of numbers, parse to dice
+//if array is of type dice return the array immediately
+function parseToDiceArray(input) {
+    if(Array.isArray(input) && input.every(die => die instanceof Die)){return input;}
+    if (typeof input === 'string') {
+        return parseToDiceFromString(input);
+    } else if (Array.isArray(input)) {
+        return parseToDiceFromNumArray(input);
+    }
+    return [];
 }
 
 class Die {
@@ -92,6 +108,7 @@ const D4 = new Die(null, 'D4', 4, 1);
 
 class DicePool {
     constructor(incoming_dice = []) {
+        if(incoming_dice) incoming_dice = parseToDiceArray(incoming_dice);
         this.dice = [null, null, null, null, null];
         if (incoming_dice.length > 0) {
             this.add(incoming_dice);
@@ -103,11 +120,12 @@ class DicePool {
             const index = DIE_SIZES.indexOf(die.size);
             if (this.dice[index]) {
                 this.dice[index].qty += die.qty;
-            } else {
+            } 
+            else  {
                 this.dice[index] = die;
-            }
+            } 
         }
-        return `${this.output()} (added ${list_of_dice(dice)})`;
+        //return `${this.output()} (added ${list_of_dice(dice)})`;
     }
     isRolled() {
         return this.dice.some(die => die && die.isRolled());
@@ -232,6 +250,7 @@ getHtichDisplay(){
         let output = this.results(this.dice, hitchOn);
         let rolls = this.eligibleDice(hitchOn);
         if (suggest_best) {
+            if(displayHitches) output += `\n`;
             output += this.getBest(rolls, keep, hitchOn, displayHitches);
         }
         else if (displayHitches) {
@@ -281,8 +300,3 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
-//loop and output 10 samples
-for (let i = 0; i < 10; i++) {
-    console.log(new DicePool(parseToDice("1d6 2d8 d12 d0 d0 d0")).roll(true, 3, 2));
-}
