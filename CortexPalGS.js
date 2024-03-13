@@ -187,8 +187,9 @@ getHtichDisplay(){
         if (!rolls) { rolls = this.eligibleDice(hitchOn); displayHitches = true;}
         let output = '';
         //Find the Best Total, then the best remaining effect
-        var best_total_dice = rolls.sort((a, b) => b.values[0] - a.values[0]).slice(0, keep);
-        var best_effect_dice = rolls.slice(0, keep).sort((a, b) => b.size - a.size).slice(0);
+        var rollsSorted = rolls.sort((a, b) => b.values[0] - a.values[0]);
+        var best_total_dice = rollsSorted.slice(0, keep);
+        var best_effect_dice = rollsSorted.slice(keep, rollsSorted.length).sort((a, b) => b.size - a.size).slice(0);
         best_effect_dice.push(D4);
         var best_effect_1 = `D${best_effect_dice[0].size}`;
         var best_total_addition = best_total_dice.map(d => d.values[0]).join(' + ');
